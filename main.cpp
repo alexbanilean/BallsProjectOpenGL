@@ -18,31 +18,47 @@ GLuint
 VaoId,
 VboId,
 EboId,
+DboId,
 ColorBufferId,
 ProgramId,
-myMatrixLocation;
+ProgramId2,
+myMatrixLocation,
+colorLocation;
 
 glm::mat4
 myMatrix, resizeMatrix;
 
 float xMin = -300.f, xMax = 300.f, yMin = -300.f, yMax = 300.f;
 
+const float PI = 3.1415926;
+const GLvoid* verticesSize;
+
 struct Ball {
 	glm::vec2 position;
 	glm::vec2 velocity;
-	glm::vec3 color;
+	glm::vec4 color;
 	float size;
 	int bounceCount;
+
+	bool operator==(const Ball& other) const {
+		return position == other.position &&
+			velocity == other.velocity &&
+			color == other.color &&
+			size == other.size &&
+			bounceCount == other.bounceCount;
+	}
 };
 
 std::vector<Ball> balls;
 
-std::vector<glm::vec3> possibleColors = {
-	glm::vec3(0.2f, 0.48f, 0.3f),
-	glm::vec3(0.53f, 0.29f, 0.17f),
-	glm::vec3(0.35f, 0.51f, 0.13f),
-	glm::vec3(0.35f, 0.19f, 0.45f),
-	glm::vec3(0.16f, 0.34f, 0.48f),
+std::vector<glm::vec4> possibleColors = {
+	glm::vec4(0.2f, 0.48f, 0.3f, 1.0f),
+	glm::vec4(0.53f, 0.29f, 0.17f, 1.0f),
+	glm::vec4(0.35f, 0.51f, 0.13f, 1.0f),
+	glm::vec4(0.35f, 0.19f, 0.45f, 1.0f),
+	glm::vec4(0.16f, 0.34f, 0.48f, 1.0f),
+	glm::vec4(0.12f, 0.39f, 0.47f, 1.0f),
+	glm::vec4(0.48f, 0.07f, 0.44f, 1.0f),
 };
 
 void SplitBall(Ball& ball) {
@@ -57,9 +73,14 @@ void SplitBall(Ball& ball) {
 		newBall1.velocity = glm::vec2(cos(glm::radians(randomAngle)), sin(glm::radians(randomAngle))) * 10.0f;
 		newBall2.velocity = glm::vec2(cos(glm::radians(randomAngle + 180.0f)), sin(glm::radians(randomAngle + 180.0f))) * 10.0f;
 
-		int randomColorIndex = rand() % possibleColors.size();
-		newBall1.color = possibleColors[randomColorIndex];
-		newBall2.color = possibleColors[randomColorIndex];
+		newBall1.color = possibleColors[rand() % possibleColors.size()];
+		newBall2.color = possibleColors[rand() % possibleColors.size()];
+
+		newBall1.position = glm::vec2(ball.position.x + 50, ball.position.y + 50);
+		newBall2.position = glm::vec2(ball.position.x - 50, ball.position.y - 50);
+
+		// Erase the original ball from the vector
+		balls.erase(std::remove(balls.begin(), balls.end(), ball), balls.end());
 
 		balls.push_back(newBall1);
 		balls.push_back(newBall2);
@@ -90,6 +111,15 @@ void CreateVBO(void)
 		0, 1, 2, 3
 	};
 
+	std::vector<GLfloat> CircleVertices;
+	for (int ii = 0; ii < 180; ii++) {
+		float theta = 2.0f * PI * float(ii) / float(180);
+		float x = cosf(theta);
+		float y = sinf(theta);
+		CircleVertices.push_back(x);
+		CircleVertices.push_back(y);
+	}
+
 	//  Transmiterea datelor prin buffere;
 
 	//  Se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO;
@@ -111,14 +141,14 @@ void CreateVBO(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboId);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
-	//	Se activeaza lucrul cu atribute;
-	//  Se asociaza atributul (0 = coordonate) pentru shader;
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-	//  Se asociaza atributul (1 =  culoare) pentru shader;
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
+	// buffer pentru CIRCLE VERTICES;
+	glGenBuffers(1, &DboId);
+	glBindBuffer(GL_ARRAY_BUFFER, DboId);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * CircleVertices.size(), &CircleVertices[0], GL_STATIC_DRAW);
+
+	verticesSize = (const GLvoid*)sizeof(Vertices);
 }
+
 void DestroyVBO(void)
 {
 	//  Eliberarea atributelor din shadere (pozitie, culoare, texturare etc.);
@@ -129,6 +159,7 @@ void DestroyVBO(void)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &VboId);
 	glDeleteBuffers(1, &EboId);
+	glDeleteBuffers(1, &DboId);
 
 	//  Eliberaea obiectelor de tip VAO;
 	glBindVertexArray(0);
@@ -138,11 +169,13 @@ void DestroyVBO(void)
 void CreateShaders(void)
 {
 	ProgramId = LoadShaders("balls_project_1.vert", "balls_project_1.frag");
+	ProgramId2 = LoadShaders("circles.vert", "circles.frag");
 	glUseProgram(ProgramId);
 }
 void DestroyShaders(void)
 {
 	glDeleteProgram(ProgramId);
+	glDeleteProgram(ProgramId2);
 }
 
 void Initialize(void)
@@ -156,21 +189,26 @@ void Initialize(void)
 
 	//	Dreptunghiul "decupat"; 
 	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
-
-	Ball ball;
-	ball.position = glm::vec2(0.0f, 0.0f);
-	ball.velocity = glm::vec2(0.0f, 0.0f);
-	ball.color = glm::vec3(1.0f, 0.5f, 0.0f);
-	ball.size = 20.0f;
-	ball.bounceCount = 0;
-	balls.push_back(ball);
 }
+
 void RenderFunction(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	myMatrix = resizeMatrix;
 	glUniformMatrix4fv(myMatrixLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VboId);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboId);
+
+	//	Se activeaza lucrul cu atribute;
+	//  Se asociaza atributul (0 = coordonate) pentru shader;
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+	//  Se asociaza atributul (1 =  culoare) pentru shader;
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, verticesSize);
+
 	//	Desenarea primitivelor
 	//	Functia glDrawElements primeste 4 argumente:
 	//	 - arg1 = modul de desenare;
@@ -179,19 +217,41 @@ void RenderFunction(void)
 	//	 - arg4 = pointer spre indici (EBO): pozitia de start a indicilor;
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(0));
 
+	glUseProgram(ProgramId2);
+
+	myMatrixLocation = glGetUniformLocation(ProgramId2, "myMatrix");
+	colorLocation = glGetUniformLocation(ProgramId2, "circleColor");
+
+	Ball ball;
+	ball.position = glm::vec2(0.0f, 0.0f);
+	ball.velocity = glm::vec2(0.0f, 0.0f);
+	ball.color = possibleColors[0];
+	ball.size = 10.0f;
+	ball.bounceCount = 0;
+
+	balls.push_back(ball);
+	SplitBall(ball);
+
 	for (const Ball& ball : balls) {
-		myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(ball.position.x, ball.position.y, 0.0f));
+		myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(ball.position.x, ball.position.y, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(ball.size, ball.size, 1.0f));
 		glUniformMatrix4fv(myMatrixLocation, 1, GL_FALSE, &myMatrix[0][0]);
 
-		glPointSize(ball.size);
-		glBegin(GL_POINTS);
+		// Set the ball color
+		glUniform4f(colorLocation, ball.color[0], ball.color[1], ball.color[2], ball.color[3]);
 
-		glColor3f(ball.color.r, ball.color.g, ball.color.b);
+		// Bind the VBO for the circle
+		glBindBuffer(GL_ARRAY_BUFFER, DboId);
 
-		glVertex2f(ball.position.x, ball.position.y);
+		// Set the attribute pointers for the circle
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-		glEnd();
+		// Draw the circle using the vertex buffer
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 180);
 	}
+
+	glUseProgram(ProgramId);
+	myMatrixLocation = glGetUniformLocation(ProgramId, "myMatrix");
 
 	glFlush();
 }
