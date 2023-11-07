@@ -1,0 +1,15 @@
+﻿  D:freeglut.dll
+  D:glew32.dll
+  D:glew32s.dll
+  3 File(s) copied
+  D:glfw3.dll
+  D:glfw3dll.dll
+  D:glfw3_mt.dll
+  3 File(s) copied
+  D:SOIL.dll
+  1 File(s) copied
+  main.cpp
+D:\Balls_Project_1\main.cpp(33,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+  Balls_Project_1.vcxproj -> D:\Balls_Project_1\x64\Debug\Balls_Project_1.exe
+  0 File(s) copied
+  0 File(s) copied
