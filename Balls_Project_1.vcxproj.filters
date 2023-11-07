@@ -1485,5 +1485,11 @@
     <None Include="balls_project_1.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="circles.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="circles.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
