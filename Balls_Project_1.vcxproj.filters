@@ -1479,17 +1479,23 @@
     <None Include="lib\x64\GL\DLLs\glew32.dll">
       <Filter>Resource Files\template-built-ins\DLLs\64b</Filter>
     </None>
-    <None Include="balls_project_1.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="balls_project_1.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
     <None Include="circles.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
     <None Include="circles.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="rectangle.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="rectangle.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="background_texture.png">
+      <Filter>Source Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

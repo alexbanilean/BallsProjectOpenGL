@@ -1,22 +1,12 @@
-//
-// ================================================
-// | Grafica pe calculator                        |
-// ================================================
-// | Laboratorul IV - circles.vert |
-// ======================================
-// 
-//  Shaderul de varfuri / Vertex shader - afecteaza geometria scenei; 
-//
-
 #version 330 core
 
-//  Variabile de intrare (dinspre programul principal);
-layout (location = 0) in vec4 in_Position;     //  Se preia din buffer de pe prima pozitie (0) atributul care contine coordonatele;
+/* Coordinates from button */
+layout (location = 0) in vec4 in_Position;
 
-//  Variabile de iesire;
-out vec4 gl_Position;   //  Transmite pozitia actualizata spre programul principal;
+/* Updated position */
+out vec4 gl_Position;
 
-//  Variabile uniforme;
+/* Uniform variable */
 uniform mat4 myMatrix;
 
 void main(void)

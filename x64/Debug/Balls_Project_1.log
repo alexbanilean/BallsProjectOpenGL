@@ -10,6 +10,12 @@
   1 File(s) copied
   main.cpp
 D:\Balls_Project_1\main.cpp(33,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Balls_Project_1\main.cpp(231,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Balls_Project_1\main.cpp(231,1): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+soil.lib(SOIL.obj) : warning LNK4099: PDB '' was not found with 'soil.lib(SOIL.obj)' or at ''; linking object as if no debug info
+soil.lib(stb_image_aug.obj) : warning LNK4099: PDB '' was not found with 'soil.lib(stb_image_aug.obj)' or at ''; linking object as if no debug info
+soil.lib(image_helper.obj) : warning LNK4099: PDB '' was not found with 'soil.lib(image_helper.obj)' or at ''; linking object as if no debug info
+soil.lib(image_DXT.obj) : warning LNK4099: PDB '' was not found with 'soil.lib(image_DXT.obj)' or at ''; linking object as if no debug info
   Balls_Project_1.vcxproj -> D:\Balls_Project_1\x64\Debug\Balls_Project_1.exe
   0 File(s) copied
   0 File(s) copied
