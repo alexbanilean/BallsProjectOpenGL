@@ -43,7 +43,7 @@ const glm::vec2 BOX_MAX(250, 250);
 	  of the rectagle your computer will have a bad time
 */
 const float INITIAL_SIZE = 100.0f;
-const float INITIAL_VELOCITY = 5.0f;
+const float INITIAL_VELOCITY = 3.0f;
 const int MAX_BOUNCES = 8;
 const float DECREASE_AMOUNT = 1.6f;
 const float MIN_BALL_SIZE = 4.0f;
@@ -452,7 +452,7 @@ void TimerFunction(int value)
 		similar on different speed machine and don't consume excesive CPU time
 	*/
 	glutPostRedisplay();
-	glutTimerFunc(1000 / 60, TimerFunction, 0);
+	glutTimerFunc(1000 / 120, TimerFunction, 0);
 }
 
 int main(int argc, char* argv[])
