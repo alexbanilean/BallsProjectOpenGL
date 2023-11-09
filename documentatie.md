@@ -16,13 +16,21 @@ Proiectul este original prin modul în care combină concepte de fizică și mat
 
 ## Capturi de ecran relevante
 
+![Alt text](Screenshot_1.png)
+![Alt text](Screenshot_2.png)
+![Alt text](Screenshot_3.png)
+
 <video src="Balls_project_video.mp4" controls title="Title"></video>
+
+
 
 ## Componența echipei 
 - Airinei Andrei (352) – coliziuni și mișcare a bilelor, limitare a numărului de cadre pe secundă
 - Bănilean Alexandru (352) – chenar, desenarea și divizarea unei bile, shadere și texturi
 
 ## Cod sursă
+
+https://github.com/alexbanilean/BallsProjectOpenGL
 
 ### Anexa 1 – main.cpp
 
