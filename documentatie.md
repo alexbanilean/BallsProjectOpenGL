@@ -11,6 +11,67 @@ Bilele se mișcă într-un spațiu 2D și se ciocnesc unele cu altele și cu mar
 
 Utilizatorul poate configura inițial viteza și dimensiunea bilelor, precum și numărul maxim de coliziuni înainte de divizare. De asemenea, animația rulează cu o limitare a rate-ului de cadre (60 cadre pe secundă) pentru o experiență uniformă pe diferite sisteme.
 
+# Coliziuni elastice
+
+1. **Calculul Masei**:
+   - `mass1` si `mass2` sunt calculate folosind formula ariei unui cerc (πr²)
+
+2. **Conservarea Impulsului si a Energie Cinetice**:
+   - Intr-o coliziune perfect elastica (fara deformari si frecare), impulsul linear total si energia cinetica totala sunt conservate. Acest principiu este folosit pentru a calcula noile viteze dupa coliziune.
+
+3. **Descompunerea Vitezelor**:
+   - Vitezele sunt descompuse in doua componente perpendiculare: normala (de-a lungul liniei de impact) si tangenta. Acest lucru simplifica calculele, deoarece componenta tangentiala a vitezei nu se schimba in timpul unei coliziuni elastice.
+
+4. **Dinamica Coliziunii**:
+   - `newDotNormal1` si `newDotNormal2` calculeaza noile viteze normale folosind conservarea impulsului si faptul ca energia cinetica este conservata in coliziunile elastice.
+
+5. **Corectia Suprapunerii**:
+   - Daca bilele se suprapun datorita razelor lor, functia ajusteaza pozitiile lor pentru a preveni lipirea. Aceasta este o problema comuna in simulările cu pasi de timp discreti.
+
+## Formule Matematice
+
+1. **Descompunerea Vitezei**:
+   - Viteza Normala: 
+     $$ \text{Viteza}_{\text{normala}} = \text{dot}(\text{normal}, \text{Viteza}) $$
+   - Viteza Tangentiala: 
+     $$ \text{Viteza}_{\text{tangentiala}} = \text{tangent} \times \text{dot}(\text{tangent}, \text{Viteza}) $$
+
+2. **Noua Viteza Normala**:
+   ### Principii Fizice
+
+	 **Conservarea Impulsului**:
+   Intr-o coliziune elastica, impulsul total al sistemului este conservat. Impulsul este produsul dintre masa si viteza unui obiect. Pentru doua bile, A si B, aceasta se poate scrie ca:
+   $$ m_A v_{A_\text{ini}} + m_B v_{B_\text{ini}} = m_A v_{A_\text{fin}} + m_B v_{B_\text{fin}} $$
+
+	**Conservarea Energiei Cinetice**:
+   In coliziuni elastice, energia cinetica totala este de asemenea conservata. Astfel, pentru sistemul nostru:
+   $$ \frac{1}{2}m_A v_{A_\text{ini}}^2 + \frac{1}{2}m_B v_{B_\text{ini}}^2 = \frac{1}{2}m_A v_{A_\text{fin}}^2 + \frac{1}{2}m_B v_{B_\text{fin}}^2 $$
+
+### Derivarea Formulelor pentru Noile Viteze Normale
+
+Aplicand aceste principii si rezolvand sistemul de ecuatii, obtinem formulele pentru noile viteze normale dupa coliziune:
+
+**Noua Viteza Normala pentru Bila A**:
+   $$ v_{A_\text{fin}} = \frac{v_{A_\text{ini}}(m_A - m_B) + 2m_B v_{B_\text{ini}}}{m_A + m_B} $$
+
+**Noua Viteza Normala pentru Bila B**:
+   $$ v_{B_\text{fin}} = \frac{v_{B_\text{ini}}(m_B - m_A) + 2m_A v_{A_\text{ini}}}{m_A + m_B} $$
+
+3. **Calculul Vitezei Finale**:
+   - Pentru Bila 1: 
+     $$ \text{Viteza}_{\text{finala1}} = \text{VitezaNouaNormala1} + \text{VitezaTangentiala1} $$
+   - Pentru Bila 2: 
+     $$ \text{Viteza}_{\text{finala2}} = \text{VitezaNouaNormala2} + \text{VitezaTangentiala2} $$
+
+4. **Corectia Suprapunerii**:
+   - Suprapunere: 
+     $$ \text{suprapunere} = (\text{raza1} + \text{raza2}) - \text{distanta} $$
+   - Ajustarea Pozitiei: 
+     $$ \text{pozitia}_{\text{ajustata}} = \text{normal} \times \text{suprapunere} \times \frac{\text{MasaAlta}}{\text{masaTotala}} $$
+
+Aceasta functie este o aplicare practica a fizicii newtoniene intr-un context computational, fiind frecvent utilizata in dezvoltarea jocurilor si simulările fizice.
+
+
 ## Originalitate
 Proiectul este original prin modul în care combină concepte de fizică și matematică pentru a crea o simulare interactivă și captivantă a mișcării bilelor. Printre aspectele originale utilizate în proiect se numără interacțiunea realistă a bilelor, rate-ul de cadre stabilizat, divizarea bilelor și configurabilitatea inițială.
 
