@@ -1,0 +1,695 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-it-texmath/css/texmath.min.css">
+<link rel="stylesheet" href="file:////home/cristi/.vscode/extensions/goessner.mdmath-2.7.4/themes/default/style.css">
+
+</head>
+<body class="markdown-body">
+<h1 dir="auto" id="balls-project">Balls project</h1>
+<h2 dir="auto" id="conceptul-proiectului">Conceptul proiectului</h2>
+<p dir="auto">Pentru acest proiect am ales să creăm o animație 2D care implică bile în mișcare, cu ajutorul OpenGL. Am ales această idee pentru că este dinamică și plăcută vizual. Inițial animația începe cu o singură bilă ce se mișcă aleator în chenarul desenat, iar la numărul de coliziuni setat, aceasta se divide în două bile mai mici, acest procedeu repetându-se pentru fiecare bilă până se atinge raza minimă, setată la început. Am urmărit obținerea unei simulări interactive a mișcării și coliziunilor, evidențiind conceptele de fizică, matematică și grafică.</p>
+<h2 dir="auto" id="transform%C4%83ri-incluse">Transformări incluse</h2>
+<p dir="auto">În cadrul proiectului am folosit o compunere de translație și scalare pentru a diviza bilele și a realiza mișcarea acestora cu o anumită viteză.</p>
+<p dir="auto">Bilele se mișcă într-un spațiu 2D și se ciocnesc unele cu altele și cu marginile ferestrei, respectând legile conservării impulsului și a energiei cinetice. La coliziuni, vitezele bilelor sunt calculate în funcție de masele lor pentru a asigura o coliziune elastică. Dacă o bilă a suferit un număr specific de coliziuni, se poate diviza în două bile mai mici, fiecare cu o nouă direcție de mișcare.</p>
+<p dir="auto">Utilizatorul poate configura inițial viteza și dimensiunea bilelor, precum și numărul maxim de coliziuni înainte de divizare. De asemenea, animația rulează cu o limitare a rate-ului de cadre (60 cadre pe secundă) pentru o experiență uniformă pe diferite sisteme.</p>
+<h1 dir="auto" id="coliziuni-elastice">Coliziuni elastice</h1>
+<ol dir="auto">
+<li dir="auto">
+<p dir="auto"><strong>Calculul Masei</strong>:</p>
+<ul dir="auto">
+<li dir="auto"><code>mass1</code> si <code>mass2</code> sunt calculate folosind formula ariei unui cerc (πr²)</li>
+</ul>
+</li>
+<li dir="auto">
+<p dir="auto"><strong>Conservarea Impulsului si a Energie Cinetice</strong>:</p>
+<ul dir="auto">
+<li dir="auto">Intr-o coliziune perfect elastica (fara deformari si frecare), impulsul linear total si energia cinetica totala sunt conservate. Acest principiu este folosit pentru a calcula noile viteze dupa coliziune.</li>
+</ul>
+</li>
+<li dir="auto">
+<p dir="auto"><strong>Descompunerea Vitezelor</strong>:</p>
+<ul dir="auto">
+<li dir="auto">Vitezele sunt descompuse in doua componente perpendiculare: normala (de-a lungul liniei de impact) si tangenta. Acest lucru simplifica calculele, deoarece componenta tangentiala a vitezei nu se schimba in timpul unei coliziuni elastice.</li>
+</ul>
+</li>
+<li dir="auto">
+<p dir="auto"><strong>Dinamica Coliziunii</strong>:</p>
+<ul dir="auto">
+<li dir="auto"><code>newDotNormal1</code> si <code>newDotNormal2</code> calculeaza noile viteze normale folosind conservarea impulsului si faptul ca energia cinetica este conservata in coliziunile elastice.</li>
+</ul>
+</li>
+<li dir="auto">
+<p dir="auto"><strong>Corectia Suprapunerii</strong>:</p>
+<ul dir="auto">
+<li dir="auto">Daca bilele se suprapun datorita razelor lor, functia ajusteaza pozitiile lor pentru a preveni lipirea. Aceasta este o problema comuna in simulările cu pasi de timp discreti.</li>
+</ul>
+</li>
+</ol>
+<h2 dir="auto" id="formule-matematice">Formule Matematice</h2>
+<ol dir="auto">
+<li dir="auto">
+<p dir="auto"><strong>Descompunerea Vitezei</strong>:</p>
+<ul dir="auto">
+<li dir="auto">Viteza Normala:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>Viteza</mtext><mtext>normala</mtext></msub><mo>=</mo><mtext>dot</mtext><mo stretchy="false">(</mo><mtext>normal</mtext><mo separator="true">,</mo><mtext>Viteza</mtext><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex"> \text{Viteza}_{\text{normala}} = \text{dot}(\text{normal}, \text{Viteza}) </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord text"><span class="mord">Viteza</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">normala</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">dot</span></span><span class="mopen">(</span><span class="mord text"><span class="mord">normal</span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">Viteza</span></span><span class="mclose">)</span></span></span></span></span></p>
+</math>
+</li>
+<li dir="auto">Viteza Tangentiala:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>Viteza</mtext><mtext>tangentiala</mtext></msub><mo>=</mo><mtext>tangent</mtext><mo>×</mo><mtext>dot</mtext><mo stretchy="false">(</mo><mtext>tangent</mtext><mo separator="true">,</mo><mtext>Viteza</mtext><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex"> \text{Viteza}_{\text{tangentiala}} = \text{tangent} \times \text{dot}(\text{tangent}, \text{Viteza}) </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord text"><span class="mord">Viteza</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">tangentiala</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8095em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">tangent</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">dot</span></span><span class="mopen">(</span><span class="mord text"><span class="mord">tangent</span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">Viteza</span></span><span class="mclose">)</span></span></span></span></span></p>
+</math>
+</li>
+</ul>
+</li>
+<li dir="auto">
+<p dir="auto"><strong>Noua Viteza Normala</strong>:</p>
+<h3 dir="auto" id="principii-fizice">Principii Fizice</h3>
+<p dir="auto"><strong>Conservarea Impulsului</strong>:
+Intr-o coliziune elastica, impulsul total al sistemului este conservat. Impulsul este produsul dintre masa si viteza unui obiect. Pentru doua bile, A si B, aceasta se poate scrie ca:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>m</mi><mi>A</mi></msub><msub><mi>v</mi><msub><mi>A</mi><mtext>ini</mtext></msub></msub><mo>+</mo><msub><mi>m</mi><mi>B</mi></msub><msub><mi>v</mi><msub><mi>B</mi><mtext>ini</mtext></msub></msub><mo>=</mo><msub><mi>m</mi><mi>A</mi></msub><msub><mi>v</mi><msub><mi>A</mi><mtext>fin</mtext></msub></msub><mo>+</mo><msub><mi>m</mi><mi>B</mi></msub><msub><mi>v</mi><msub><mi>B</mi><mtext>fin</mtext></msub></msub></mrow><annotation encoding="application/x-tex"> m_A v_{A_\text{ini}} + m_B v_{B_\text{ini}} = m_A v_{A_\text{fin}} + m_B v_{B_\text{fin}} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8334em;vertical-align:-0.2501em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6807em;vertical-align:-0.2501em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8392em;vertical-align:-0.2559em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">fin</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2559em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6864em;vertical-align:-0.2559em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">fin</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2559em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+</math>
+<p dir="auto"><strong>Conservarea Energiei Cinetice</strong>:
+In coliziuni elastice, energia cinetica totala este de asemenea conservata. Astfel, pentru sistemul nostru:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>m</mi><mi>A</mi></msub><msubsup><mi>v</mi><msub><mi>A</mi><mtext>ini</mtext></msub><mn>2</mn></msubsup><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>m</mi><mi>B</mi></msub><msubsup><mi>v</mi><msub><mi>B</mi><mtext>ini</mtext></msub><mn>2</mn></msubsup><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>m</mi><mi>A</mi></msub><msubsup><mi>v</mi><msub><mi>A</mi><mtext>fin</mtext></msub><mn>2</mn></msubsup><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>m</mi><mi>B</mi></msub><msubsup><mi>v</mi><msub><mi>B</mi><mtext>fin</mtext></msub><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex"> \frac{1}{2}m_A v_{A_\text{ini}}^2 + \frac{1}{2}m_B v_{B_\text{ini}}^2 = \frac{1}{2}m_A v_{A_\text{fin}}^2 + \frac{1}{2}m_B v_{B_\text{fin}}^2 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.0074em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-2.453em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3471em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.0074em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-2.453em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3471em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.0074em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-2.453em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">fin</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3529em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.0074em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-2.453em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">fin</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3529em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+</math>
+</li>
+</ol>
+<h3 dir="auto" id="derivarea-formulelor-pentru-noile-viteze-normale">Derivarea Formulelor pentru Noile Viteze Normale</h3>
+<p dir="auto">Aplicand aceste principii si rezolvand sistemul de ecuatii, obtinem formulele pentru noile viteze normale dupa coliziune:</p>
+<p dir="auto"><strong>Noua Viteza Normala pentru Bila A</strong>:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>v</mi><msub><mi>A</mi><mtext>fin</mtext></msub></msub><mo>=</mo><mfrac><mrow><msub><mi>v</mi><msub><mi>A</mi><mtext>ini</mtext></msub></msub><mo stretchy="false">(</mo><msub><mi>m</mi><mi>A</mi></msub><mo>−</mo><msub><mi>m</mi><mi>B</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mn>2</mn><msub><mi>m</mi><mi>B</mi></msub><msub><mi>v</mi><msub><mi>B</mi><mtext>ini</mtext></msub></msub></mrow><mrow><msub><mi>m</mi><mi>A</mi></msub><mo>+</mo><msub><mi>m</mi><mi>B</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex"> v_{A_\text{fin}} = \frac{v_{A_\text{ini}}(m_A - m_B) + 2m_B v_{B_\text{ini}}}{m_A + m_B} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6864em;vertical-align:-0.2559em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">fin</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2559em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.263em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">2</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</math>
+<p dir="auto"><strong>Noua Viteza Normala pentru Bila B</strong>:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>v</mi><msub><mi>B</mi><mtext>fin</mtext></msub></msub><mo>=</mo><mfrac><mrow><msub><mi>v</mi><msub><mi>B</mi><mtext>ini</mtext></msub></msub><mo stretchy="false">(</mo><msub><mi>m</mi><mi>B</mi></msub><mo>−</mo><msub><mi>m</mi><mi>A</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mn>2</mn><msub><mi>m</mi><mi>A</mi></msub><msub><mi>v</mi><msub><mi>A</mi><mtext>ini</mtext></msub></msub></mrow><mrow><msub><mi>m</mi><mi>A</mi></msub><mo>+</mo><msub><mi>m</mi><mi>B</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex"> v_{B_\text{fin}} = \frac{v_{B_\text{ini}}(m_B - m_A) + 2m_A v_{A_\text{ini}}}{m_A + m_B} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6864em;vertical-align:-0.2559em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">fin</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2559em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.263em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">2</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.334em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">ini</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</math>
+<ol start="3" dir="auto">
+<li dir="auto">
+<p dir="auto"><strong>Calculul Vitezei Finale</strong>:</p>
+<ul dir="auto">
+<li dir="auto">Pentru Bila 1:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>Viteza</mtext><mtext>finala1</mtext></msub><mo>=</mo><mtext>VitezaNouaNormala1</mtext><mo>+</mo><mtext>VitezaTangentiala1</mtext></mrow><annotation encoding="application/x-tex"> \text{Viteza}_{\text{finala1}} = \text{VitezaNouaNormala1} + \text{VitezaTangentiala1} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord text"><span class="mord">Viteza</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">finala1</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.0833em;"></span><span class="mord text"><span class="mord">VitezaNouaNormala1</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">VitezaTangentiala1</span></span></span></span></span></span></p>
+</math>
+</li>
+<li dir="auto">Pentru Bila 2:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>Viteza</mtext><mtext>finala2</mtext></msub><mo>=</mo><mtext>VitezaNouaNormala2</mtext><mo>+</mo><mtext>VitezaTangentiala2</mtext></mrow><annotation encoding="application/x-tex"> \text{Viteza}_{\text{finala2}} = \text{VitezaNouaNormala2} + \text{VitezaTangentiala2} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord text"><span class="mord">Viteza</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">finala2</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.0833em;"></span><span class="mord text"><span class="mord">VitezaNouaNormala2</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">VitezaTangentiala2</span></span></span></span></span></span></p>
+</math>
+</li>
+</ul>
+</li>
+<li dir="auto">
+<p dir="auto"><strong>Corectia Suprapunerii</strong>:</p>
+<ul dir="auto">
+<li dir="auto">Suprapunere:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>suprapunere</mtext><mo>=</mo><mo stretchy="false">(</mo><mtext>raza1</mtext><mo>+</mo><mtext>raza2</mtext><mo stretchy="false">)</mo><mo>−</mo><mtext>distanta</mtext></mrow><annotation encoding="application/x-tex"> \text{suprapunere} = (\text{raza1} + \text{raza2}) - \text{distanta} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">suprapunere</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord text"><span class="mord">raza1</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">raza2</span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">distanta</span></span></span></span></span></span></p>
+</math>
+</li>
+<li dir="auto">Ajustarea Pozitiei:<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>pozitia</mtext><mtext>ajustata</mtext></msub><mo>=</mo><mtext>normal</mtext><mo>×</mo><mtext>suprapunere</mtext><mo>×</mo><mfrac><mtext>MasaAlta</mtext><mtext>masaTotala</mtext></mfrac></mrow><annotation encoding="application/x-tex"> \text{pozitia}_{\text{ajustata}} = \text{normal} \times \text{suprapunere} \times \frac{\text{MasaAlta}}{\text{masaTotala}} </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0481em;vertical-align:-0.3802em;"></span><span class="mord"><span class="mord text"><span class="mord">pozitia</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2234em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">ajustata</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3802em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.0833em;"></span><span class="mord text"><span class="mord">normal</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">suprapunere</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.0574em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">masaTotala</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">MasaAlta</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</math>
+</li>
+</ul>
+</li>
+</ol>
+<p dir="auto">Aceasta functie este o aplicare practica a fizicii newtoniene intr-un context computational, fiind frecvent utilizata in dezvoltarea jocurilor si simulările fizice.</p>
+<h2 dir="auto" id="originalitate">Originalitate</h2>
+<p dir="auto">Proiectul este original prin modul în care combină concepte de fizică și matematică pentru a crea o simulare interactivă și captivantă a mișcării bilelor. Printre aspectele originale utilizate în proiect se numără interacțiunea realistă a bilelor, rate-ul de cadre stabilizat, divizarea bilelor și configurabilitatea inițială.</p>
+<h2 dir="auto" id="capturi-de-ecran-relevante">Capturi de ecran relevante</h2>
+<p dir="auto"><img src="Screenshot_1.png" alt="Alt text" data-src="Screenshot_1.png">
+<img src="Screenshot_2.png" alt="Alt text" data-src="Screenshot_2.png">
+<img src="Screenshot_3.png" alt="Alt text" data-src="Screenshot_3.png"></p>
+<p dir="auto"><video src="Balls_project_video.mp4" controls title="Title"></video></p>
+<h2 dir="auto" id="componen%C8%9Ba-echipei">Componența echipei</h2>
+<ul dir="auto">
+<li dir="auto">Airinei Andrei (352) – coliziuni și mișcare a bilelor, limitare a numărului de cadre pe secundă</li>
+<li dir="auto">Bănilean Alexandru (352) – chenar, desenarea și divizarea unei bile, shadere și texturi</li>
+</ul>
+<h2 dir="auto" id="cod-surs%C4%83">Cod sursă</h2>
+<p dir="auto"><a href="https://github.com/alexbanilean/BallsProjectOpenGL">https://github.com/alexbanilean/BallsProjectOpenGL</a></p>
+<h3 dir="auto" id="anexa-1-%E2%80%93-maincpp">Anexa 1 – main.cpp</h3>
+<pre><code class="code-line language-cpp" dir="auto"><div><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;windows.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;GL/glew.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;GL/freeglut.h&gt;</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;loadShaders.h&quot;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;glm/glm.hpp&quot;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;glm/gtc/matrix_transform.hpp&quot;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;glm/gtx/transform.hpp&quot;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;glm/gtc/type_ptr.hpp&quot;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;SOIL.h&quot;</span></span>
+
+GLuint
+VaoId,
+VboId,
+EboId,
+DboId,
+ColorBufferId,
+ProgramId,
+ProgramId2,
+myMatrixLocation,
+texture,
+codColLocation,
+colorLocation;
+
+glm::mat4
+myMatrix, resizeMatrix;
+
+<span class="hljs-type">float</span> xMin = <span class="hljs-number">-300.f</span>, xMax = <span class="hljs-number">300.f</span>, yMin = <span class="hljs-number">-300.f</span>, yMax = <span class="hljs-number">300.f</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">float</span> PI = <span class="hljs-number">3.1415926</span>;
+
+<span class="hljs-comment">/* Bounding box */</span>
+<span class="hljs-function"><span class="hljs-type">const</span> glm::vec2 <span class="hljs-title">BOX_MIN</span><span class="hljs-params">(<span class="hljs-number">-250</span>, <span class="hljs-number">-250</span>)</span></span>;
+<span class="hljs-function"><span class="hljs-type">const</span> glm::vec2 <span class="hljs-title">BOX_MAX</span><span class="hljs-params">(<span class="hljs-number">250</span>, <span class="hljs-number">250</span>)</span></span>;
+
+<span class="hljs-comment">/* 
+	Initial configuration
+	- play around with these
+	- consider that if the maximal area of the objects is close to the area
+	  of the rectagle your computer will have a bad time
+*/</span>
+<span class="hljs-type">const</span> <span class="hljs-type">float</span> INITIAL_SIZE = <span class="hljs-number">100.0f</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">float</span> INITIAL_VELOCITY = <span class="hljs-number">3.0f</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">int</span> MAX_BOUNCES = <span class="hljs-number">8</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">float</span> DECREASE_AMOUNT = <span class="hljs-number">1.6f</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">float</span> MIN_BALL_SIZE = <span class="hljs-number">4.0f</span>;
+
+<span class="hljs-type">int</span> codCol;
+
+std::vector&lt;glm::vec4&gt; possibleColors = {
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.2f</span>, <span class="hljs-number">0.48f</span>, <span class="hljs-number">0.3f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.53f</span>, <span class="hljs-number">0.29f</span>, <span class="hljs-number">0.17f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.35f</span>, <span class="hljs-number">0.51f</span>, <span class="hljs-number">0.13f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.35f</span>, <span class="hljs-number">0.19f</span>, <span class="hljs-number">0.45f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.16f</span>, <span class="hljs-number">0.34f</span>, <span class="hljs-number">0.48f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.12f</span>, <span class="hljs-number">0.39f</span>, <span class="hljs-number">0.47f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.48f</span>, <span class="hljs-number">0.07f</span>, <span class="hljs-number">0.44f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.47f</span>, <span class="hljs-number">0.46f</span>, <span class="hljs-number">0.06f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.73f</span>, <span class="hljs-number">0.09f</span>, <span class="hljs-number">0.16f</span>, <span class="hljs-number">1.0f</span>),
+	glm::<span class="hljs-built_in">vec4</span>(<span class="hljs-number">0.20f</span>, <span class="hljs-number">0.40f</span>, <span class="hljs-number">0.39f</span>, <span class="hljs-number">1.0f</span>),
+};
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Ball</span> {
+<span class="hljs-keyword">public</span>:
+	<span class="hljs-type">static</span> std::vector&lt;Ball&gt; balls;
+	<span class="hljs-type">static</span> std::vector&lt;Ball&gt; new_balls;
+
+	glm::vec2 position;
+	glm::vec2 velocity;
+	glm::vec4 color;
+	<span class="hljs-type">float</span> size;
+	<span class="hljs-type">int</span> bounceCount;
+
+	<span class="hljs-type">bool</span> <span class="hljs-keyword">operator</span>==(<span class="hljs-type">const</span> Ball&amp; other) <span class="hljs-type">const</span> {
+		<span class="hljs-keyword">return</span> position == other.position &amp;&amp;
+			velocity == other.velocity &amp;&amp;
+			color == other.color &amp;&amp;
+			size == other.size &amp;&amp;
+			bounceCount == other.bounceCount;
+	}
+
+<span class="hljs-keyword">private</span>:
+	<span class="hljs-comment">/*
+		Elastic collisions of randomized object are slighty impredictiable especially when mass based
+		This computes the reflection of walls as well as pulling the ball back in frame in case it reached a speed that allowed it to fully pass
+	*/</span>
+	<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">WallCollisionCheck</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">if</span> (position.x - size &lt; BOX_MIN.x) {
+			velocity.x = -velocity.x;
+			position.x = BOX_MIN.x + size;
+			bounceCount++;
+		}
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (position.x + size &gt; BOX_MAX.x) {
+			velocity.x = -velocity.x;
+			position.x = BOX_MAX.x - size;
+			bounceCount++;
+		}
+
+		<span class="hljs-keyword">if</span> (position.y - size &lt; BOX_MIN.y) {
+			velocity.y = -velocity.y;
+			position.y = BOX_MIN.y + size;
+			bounceCount++;
+		}
+		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (position.y + size &gt; BOX_MAX.y) {
+			velocity.y = -velocity.y;
+			position.y = BOX_MAX.y - size;
+			bounceCount++;
+		}
+	}
+
+	<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Split</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">if</span> (size &gt; MIN_BALL_SIZE) {
+			size /= DECREASE_AMOUNT;
+			Ball newBall = *<span class="hljs-keyword">this</span>;
+
+			<span class="hljs-type">float</span> randomAngle = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">float</span>&gt;(std::<span class="hljs-built_in">rand</span>()) / RAND_MAX * <span class="hljs-number">2</span> * PI;
+			<span class="hljs-function">glm::vec2 <span class="hljs-title">dir</span><span class="hljs-params">(std::cos(randomAngle), std::sin(randomAngle))</span></span>;
+
+			newBall.velocity = dir * glm::<span class="hljs-built_in">length</span>(velocity);
+			<span class="hljs-keyword">this</span>-&gt;velocity = -dir * glm::<span class="hljs-built_in">length</span>(velocity);
+
+			color = possibleColors[<span class="hljs-built_in">rand</span>() % possibleColors.<span class="hljs-built_in">size</span>()];
+			newBall.color = possibleColors[<span class="hljs-built_in">rand</span>() % possibleColors.<span class="hljs-built_in">size</span>()];
+
+			<span class="hljs-type">float</span> separationDistance = size;
+			<span class="hljs-keyword">this</span>-&gt;position += dir * separationDistance;
+			newBall.position -= dir * separationDistance;
+
+			<span class="hljs-keyword">this</span>-&gt;bounceCount = <span class="hljs-number">0</span>;
+			newBall.bounceCount = <span class="hljs-number">0</span>;
+
+			balls.<span class="hljs-built_in">push_back</span>(newBall);
+		}
+	}
+
+	<span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">HandleCollisions</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; balls.<span class="hljs-built_in">size</span>(); ++i) {
+			<span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> j = i + <span class="hljs-number">1</span>; j &lt; balls.<span class="hljs-built_in">size</span>(); ++j) {
+				Ball&amp; ball1 = balls[i];
+				Ball&amp; ball2 = balls[j];
+
+				glm::vec2 diff = ball2.position - ball1.position;
+				<span class="hljs-type">float</span> distance = glm::<span class="hljs-built_in">length</span>(diff);
+				<span class="hljs-type">float</span> radiusSum = ball1.size + ball2.size;
+
+				<span class="hljs-comment">/* Check for collision */</span>
+				<span class="hljs-keyword">if</span> (distance &lt; radiusSum) {
+					<span class="hljs-comment">/* Calculate elastic collision response */</span>
+					<span class="hljs-built_in">ElasticCollision</span>(ball1, ball2, diff, distance, radiusSum);
+				}
+			}
+		}
+	}
+
+
+	<span class="hljs-comment">/* 
+		WARNING physics part
+		This functions calculates perfect elastic collision 
+		of 2 objects using conservation of kinetic energy and momentum
+	*/</span>
+	<span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">ElasticCollision</span><span class="hljs-params">(Ball&amp; ball1, Ball&amp; ball2, <span class="hljs-type">const</span> glm::vec2&amp; diff, <span class="hljs-type">float</span> distance, <span class="hljs-type">float</span> radiusSum)</span> </span>{
+		<span class="hljs-type">float</span> mass1 = PI * ball1.size * ball1.size;
+		<span class="hljs-type">float</span> mass2 = PI * ball2.size * ball2.size;
+		<span class="hljs-type">float</span> totalMass = mass1 + mass2;
+
+		glm::vec2 normal = glm::<span class="hljs-built_in">normalize</span>(diff);
+		<span class="hljs-function">glm::vec2 <span class="hljs-title">tangent</span><span class="hljs-params">(-normal.y, normal.x)</span></span>;
+
+		<span class="hljs-type">float</span> dotNormal1 = glm::<span class="hljs-built_in">dot</span>(normal, ball1.velocity);
+		<span class="hljs-type">float</span> dotNormal2 = glm::<span class="hljs-built_in">dot</span>(normal, ball2.velocity);
+		<span class="hljs-type">float</span> dotTangent1 = glm::<span class="hljs-built_in">dot</span>(tangent, ball1.velocity);
+		<span class="hljs-type">float</span> dotTangent2 = glm::<span class="hljs-built_in">dot</span>(tangent, ball2.velocity);
+
+		glm::vec2 tangentVelocity1 = tangent * dotTangent1;
+		glm::vec2 tangentVelocity2 = tangent * dotTangent2;
+
+		<span class="hljs-type">float</span> newDotNormal1 = (dotNormal1 * (mass1 - mass2) + <span class="hljs-number">2</span> * mass2 * dotNormal2) / totalMass;
+		<span class="hljs-type">float</span> newDotNormal2 = (dotNormal2 * (mass2 - mass1) + <span class="hljs-number">2</span> * mass1 * dotNormal1) / totalMass;
+
+		glm::vec2 newNormalVelocity1 = normal * newDotNormal1;
+		glm::vec2 newNormalVelocity2 = normal * newDotNormal2;
+
+		ball1.velocity = newNormalVelocity1 + tangentVelocity1;
+		ball2.velocity = newNormalVelocity2 + tangentVelocity2;
+
+		<span class="hljs-comment">/* Move balls apart if they&#x27;re overlapping to prevent sticking */</span>
+		<span class="hljs-type">float</span> overlap = (ball1.size + ball2.size) - distance;
+		<span class="hljs-keyword">if</span> (overlap &gt; <span class="hljs-number">0</span>) {
+			glm::vec2 separation = normal * overlap;
+			ball1.position -= separation * (mass2 / totalMass);
+			ball2.position += separation * (mass1 / totalMass);
+		}
+
+		ball1.bounceCount++;
+		ball2.bounceCount++;
+	}
+
+	<span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-keyword">inline</span> <span class="hljs-title">get_position</span><span class="hljs-params">()</span> <span class="hljs-type">const</span>
+	</span>{
+		<span class="hljs-keyword">return</span> glm::<span class="hljs-built_in">translate</span>(glm::<span class="hljs-built_in">mat4</span>(<span class="hljs-number">1.0f</span>), glm::<span class="hljs-built_in">vec3</span>(position.x, position.y, <span class="hljs-number">0.0f</span>));
+	}
+	<span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-keyword">inline</span> <span class="hljs-title">get_scale</span><span class="hljs-params">()</span> <span class="hljs-type">const</span>
+	</span>{
+		<span class="hljs-keyword">return</span> glm::<span class="hljs-built_in">scale</span>(glm::<span class="hljs-built_in">mat4</span>(<span class="hljs-number">1.0f</span>), glm::<span class="hljs-built_in">vec3</span>(size, size, <span class="hljs-number">1.0f</span>));
+	}
+<span class="hljs-keyword">public</span>:
+
+	<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Update</span><span class="hljs-params">()</span> </span>{
+		<span class="hljs-comment">/* Update position */</span>
+		position += velocity;
+
+		<span class="hljs-built_in">WallCollisionCheck</span>();
+
+		<span class="hljs-comment">/* Check for split condition */</span>
+		<span class="hljs-keyword">if</span> (bounceCount &gt;= MAX_BOUNCES) {
+			<span class="hljs-built_in">Split</span>();
+		}
+	}
+
+	<span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-keyword">inline</span> <span class="hljs-title">transform</span><span class="hljs-params">()</span> <span class="hljs-type">const</span>
+	</span>{
+		<span class="hljs-keyword">return</span> <span class="hljs-built_in">get_position</span>() * <span class="hljs-built_in">get_scale</span>();
+	}
+
+	<span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">SceneUpdate</span><span class="hljs-params">()</span>
+	</span>{
+		<span class="hljs-built_in">HandleCollisions</span>();
+		<span class="hljs-type">const</span> <span class="hljs-type">int</span> cnt = balls.<span class="hljs-built_in">size</span>();
+		<span class="hljs-comment">/* Ensure we only call update on the balls we have, and don&#x27;t recalculate for freshly spawend ones */</span>
+		<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; cnt; i++)
+			balls[i].<span class="hljs-built_in">Update</span>();
+	}
+};
+
+std::vector&lt;Ball&gt; Ball::balls;
+std::vector&lt;Ball&gt; Ball::new_balls;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">LoadTexture</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* photoPath)</span>
+</span>{
+	<span class="hljs-built_in">glGenTextures</span>(<span class="hljs-number">1</span>, &amp;texture);
+	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, texture);
+	
+	<span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	<span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	<span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	<span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	<span class="hljs-type">int</span> width, height;
+	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>* image = <span class="hljs-built_in">SOIL_load_image</span>(photoPath, &amp;width, &amp;height, <span class="hljs-number">0</span>, SOIL_LOAD_RGB);
+
+	<span class="hljs-keyword">if</span> (!image) {
+		std::cerr &lt;&lt; <span class="hljs-string">&quot;Error loading image: &quot;</span> &lt;&lt; <span class="hljs-built_in">SOIL_last_result</span>() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;
+		<span class="hljs-keyword">return</span>;
+	}
+
+	<span class="hljs-built_in">glTexImage2D</span>(GL_TEXTURE_2D, <span class="hljs-number">0</span>, GL_RGB, width, height, <span class="hljs-number">0</span>, GL_RGB, GL_UNSIGNED_BYTE, image);
+	<span class="hljs-built_in">glGenerateMipmap</span>(GL_TEXTURE_2D);
+
+	<span class="hljs-built_in">SOIL_free_image_data</span>(image);
+	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, <span class="hljs-number">0</span>);
+}
+
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">CreateVBO</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	GLfloat Vertices[] = {
+		BOX_MIN.x, BOX_MIN.y,  <span class="hljs-number">0.0f</span>,  <span class="hljs-number">1.0f</span>,   <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>,   <span class="hljs-number">0.0f</span>, <span class="hljs-number">0.0f</span>,
+		BOX_MAX.x, BOX_MIN.y,  <span class="hljs-number">0.0f</span>,  <span class="hljs-number">1.0f</span>,   <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>,   <span class="hljs-number">1.0f</span>, <span class="hljs-number">0.0f</span>,
+		BOX_MAX.x, BOX_MAX.y,  <span class="hljs-number">0.0f</span>,  <span class="hljs-number">1.0f</span>,   <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>,   <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>,
+		BOX_MIN.x, BOX_MAX.y,  <span class="hljs-number">0.0f</span>,  <span class="hljs-number">1.0f</span>,   <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>, <span class="hljs-number">1.0f</span>,   <span class="hljs-number">0.0f</span>, <span class="hljs-number">1.0f</span>
+	};
+
+	<span class="hljs-comment">/* Indices for vertex order */</span>
+	<span class="hljs-type">static</span> <span class="hljs-type">const</span> GLuint Indices[] =
+	{
+		<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>,
+		<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>
+	};
+
+	<span class="hljs-comment">/* Generate circle vertices */</span>
+	std::vector&lt;GLfloat&gt; CircleVertices;
+	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> ii = <span class="hljs-number">0</span>; ii &lt; <span class="hljs-number">180</span>; ii++) {
+		<span class="hljs-type">float</span> theta = <span class="hljs-number">2.0f</span> * PI * <span class="hljs-built_in">float</span>(ii) / <span class="hljs-built_in">float</span>(<span class="hljs-number">180</span>);
+		<span class="hljs-type">float</span> x = <span class="hljs-built_in">cosf</span>(theta);
+		<span class="hljs-type">float</span> y = <span class="hljs-built_in">sinf</span>(theta);
+		CircleVertices.<span class="hljs-built_in">push_back</span>(x);
+		CircleVertices.<span class="hljs-built_in">push_back</span>(y);
+	}
+
+	<span class="hljs-comment">/* Bind VAO(Vertex Array Object) */</span>
+	<span class="hljs-built_in">glGenVertexArrays</span>(<span class="hljs-number">1</span>, &amp;VaoId);
+
+	<span class="hljs-comment">/* Common buffer for vertices - coordinates, colors and texture coordinates */</span>
+	
+	<span class="hljs-built_in">glGenBuffers</span>(<span class="hljs-number">1</span>, &amp;VboId);													
+	<span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, VboId);
+	<span class="hljs-built_in">glBufferData</span>(GL_ARRAY_BUFFER, <span class="hljs-built_in">sizeof</span>(Vertices), Vertices, GL_STATIC_DRAW);
+
+	<span class="hljs-comment">/* Indices buffer */</span>
+	<span class="hljs-built_in">glGenBuffers</span>(<span class="hljs-number">1</span>, &amp;EboId);
+	<span class="hljs-built_in">glBindBuffer</span>(GL_ELEMENT_ARRAY_BUFFER, EboId);
+	<span class="hljs-built_in">glBufferData</span>(GL_ELEMENT_ARRAY_BUFFER, <span class="hljs-built_in">sizeof</span>(Indices), Indices, GL_STATIC_DRAW);
+
+	<span class="hljs-comment">/* Circle vertices buffer */</span>
+	<span class="hljs-built_in">glGenBuffers</span>(<span class="hljs-number">1</span>, &amp;DboId);
+	<span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, DboId);
+	<span class="hljs-built_in">glBufferData</span>(GL_ARRAY_BUFFER, <span class="hljs-built_in">sizeof</span>(GLfloat) * CircleVertices.<span class="hljs-built_in">size</span>(), &amp;CircleVertices[<span class="hljs-number">0</span>], GL_STATIC_DRAW);
+
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DestroyVBO</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	<span class="hljs-built_in">glDisableVertexAttribArray</span>(<span class="hljs-number">1</span>);
+	<span class="hljs-built_in">glDisableVertexAttribArray</span>(<span class="hljs-number">0</span>);
+
+	<span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, <span class="hljs-number">0</span>);
+	<span class="hljs-built_in">glDeleteBuffers</span>(<span class="hljs-number">1</span>, &amp;VboId);
+	<span class="hljs-built_in">glDeleteBuffers</span>(<span class="hljs-number">1</span>, &amp;EboId);
+	<span class="hljs-built_in">glDeleteBuffers</span>(<span class="hljs-number">1</span>, &amp;DboId);
+
+	<span class="hljs-built_in">glBindVertexArray</span>(<span class="hljs-number">0</span>);
+	<span class="hljs-built_in">glDeleteVertexArrays</span>(<span class="hljs-number">1</span>, &amp;VaoId);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">CreateShaders</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	ProgramId = <span class="hljs-built_in">LoadShaders</span>(<span class="hljs-string">&quot;rectangle.vert&quot;</span>, <span class="hljs-string">&quot;rectangle.frag&quot;</span>);
+	ProgramId2 = <span class="hljs-built_in">LoadShaders</span>(<span class="hljs-string">&quot;circles.vert&quot;</span>, <span class="hljs-string">&quot;circles.frag&quot;</span>);
+	<span class="hljs-built_in">glUseProgram</span>(ProgramId);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DestroyShaders</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	<span class="hljs-built_in">glDeleteProgram</span>(ProgramId);
+	<span class="hljs-built_in">glDeleteProgram</span>(ProgramId2);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Initialize</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	<span class="hljs-comment">/* Screen background color */</span>
+	<span class="hljs-built_in">glClearColor</span>(<span class="hljs-number">0.26f</span>, <span class="hljs-number">0.32f</span>, <span class="hljs-number">0.41f</span>, <span class="hljs-number">1.0f</span>);
+
+	<span class="hljs-built_in">CreateVBO</span>();
+	<span class="hljs-built_in">CreateShaders</span>();
+
+	<span class="hljs-comment">/* Bind texture */</span>
+	<span class="hljs-built_in">LoadTexture</span>(<span class="hljs-string">&quot;background_texture.png&quot;</span>);
+	<span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0);
+	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, texture);
+
+	myMatrixLocation = <span class="hljs-built_in">glGetUniformLocation</span>(ProgramId, <span class="hljs-string">&quot;myMatrix&quot;</span>);
+	codColLocation = <span class="hljs-built_in">glGetUniformLocation</span>(ProgramId, <span class="hljs-string">&quot;codCol&quot;</span>);
+	resizeMatrix = glm::<span class="hljs-built_in">ortho</span>(xMin, xMax, yMin, yMax);
+
+	<span class="hljs-comment">/* Create initial ball */</span>
+	Ball ball;
+	ball.position = glm::<span class="hljs-built_in">vec2</span>(<span class="hljs-number">0.0f</span>, <span class="hljs-number">0.0f</span>);
+
+	<span class="hljs-type">float</span> randomAngle = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">float</span>&gt;(std::<span class="hljs-built_in">rand</span>()) / RAND_MAX * <span class="hljs-number">2</span> * PI;
+	<span class="hljs-function">glm::vec2 <span class="hljs-title">dir</span><span class="hljs-params">(std::cos(randomAngle), std::sin(randomAngle))</span></span>;
+
+	ball.velocity = dir * INITIAL_VELOCITY;
+	ball.color = possibleColors[<span class="hljs-number">2</span>];
+	ball.size = INITIAL_SIZE;
+	ball.bounceCount = <span class="hljs-number">0</span>;
+	Ball::balls.<span class="hljs-built_in">push_back</span>(ball);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">RenderFunction</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	<span class="hljs-built_in">glClear</span>(GL_COLOR_BUFFER_BIT);
+
+	<span class="hljs-comment">/* Compute transformation matrix and send it to shader*/</span>
+	myMatrix = resizeMatrix;
+	<span class="hljs-built_in">glUniformMatrix4fv</span>(myMatrixLocation, <span class="hljs-number">1</span>, GL_FALSE, &amp;myMatrix[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]);
+
+	<span class="hljs-comment">/* Bind buffers and load data */</span>
+	<span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, VboId);
+	<span class="hljs-built_in">glBindBuffer</span>(GL_ELEMENT_ARRAY_BUFFER, EboId);
+
+	<span class="hljs-built_in">glEnableVertexAttribArray</span>(<span class="hljs-number">0</span>);
+	<span class="hljs-built_in">glVertexAttribPointer</span>(<span class="hljs-number">0</span>, <span class="hljs-number">4</span>, GL_FLOAT, GL_FALSE, <span class="hljs-number">9</span> * <span class="hljs-built_in">sizeof</span>(GLfloat), (GLvoid*)<span class="hljs-number">0</span>);
+	<span class="hljs-built_in">glEnableVertexAttribArray</span>(<span class="hljs-number">1</span>);
+	<span class="hljs-built_in">glVertexAttribPointer</span>(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, GL_FLOAT, GL_FALSE, <span class="hljs-number">9</span> * <span class="hljs-built_in">sizeof</span>(GLfloat), (GLvoid*)(<span class="hljs-number">4</span> * <span class="hljs-built_in">sizeof</span>(GLfloat)));
+	<span class="hljs-built_in">glEnableVertexAttribArray</span>(<span class="hljs-number">2</span>);
+	<span class="hljs-built_in">glVertexAttribPointer</span>(<span class="hljs-number">2</span>, <span class="hljs-number">2</span>, GL_FLOAT, GL_FALSE, <span class="hljs-number">9</span> * <span class="hljs-built_in">sizeof</span>(GLfloat), (GLvoid*)(<span class="hljs-number">7</span> * <span class="hljs-built_in">sizeof</span>(GLfloat)));
+
+	<span class="hljs-comment">/* Send color to shader */</span>
+	<span class="hljs-built_in">glUniform1i</span>(<span class="hljs-built_in">glGetUniformLocation</span>(ProgramId, <span class="hljs-string">&quot;backgroundTexture&quot;</span>), <span class="hljs-number">0</span>);
+
+	<span class="hljs-comment">/* Activate texture in shader */</span>
+	codCol = <span class="hljs-number">1</span>;
+	<span class="hljs-built_in">glUniform1i</span>(codColLocation, codCol);
+
+	<span class="hljs-comment">/* Draw the rectangle */</span>
+	<span class="hljs-built_in">glDrawElements</span>(GL_POLYGON, <span class="hljs-number">4</span>, GL_UNSIGNED_INT, (<span class="hljs-type">void</span>*)(<span class="hljs-number">0</span>));
+
+	codCol = <span class="hljs-number">0</span>;
+	<span class="hljs-built_in">glUniform1i</span>(codColLocation, codCol);
+
+	<span class="hljs-built_in">glDrawElements</span>(GL_LINE_LOOP, <span class="hljs-number">4</span>, GL_UNSIGNED_INT, (<span class="hljs-type">void</span>*)(<span class="hljs-number">0</span>));
+
+	<span class="hljs-comment">/* Bind the circle shader */</span>
+	<span class="hljs-built_in">glUseProgram</span>(ProgramId2);
+	myMatrixLocation = <span class="hljs-built_in">glGetUniformLocation</span>(ProgramId2, <span class="hljs-string">&quot;myMatrix&quot;</span>);
+	colorLocation = <span class="hljs-built_in">glGetUniformLocation</span>(ProgramId2, <span class="hljs-string">&quot;circleColor&quot;</span>);
+
+	<span class="hljs-comment">/* Balls rendering */</span>
+	<span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> Ball&amp; ball : Ball::balls) {
+		<span class="hljs-comment">/* Compute transformation matrix and send it to shader*/</span>
+		myMatrix = resizeMatrix * ball.<span class="hljs-built_in">transform</span>();
+		<span class="hljs-built_in">glUniformMatrix4fv</span>(myMatrixLocation, <span class="hljs-number">1</span>, GL_FALSE, &amp;myMatrix[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]);
+
+		<span class="hljs-comment">/* Send color to shader */</span>
+		<span class="hljs-built_in">glUniform4f</span>(colorLocation, ball.color[<span class="hljs-number">0</span>], ball.color[<span class="hljs-number">1</span>], ball.color[<span class="hljs-number">2</span>], ball.color[<span class="hljs-number">3</span>]);
+
+		<span class="hljs-comment">/* Bind the circle buffer */</span>
+		<span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, DboId);
+		<span class="hljs-built_in">glEnableVertexAttribArray</span>(<span class="hljs-number">0</span>);
+		<span class="hljs-built_in">glVertexAttribPointer</span>(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, GL_FLOAT, GL_FALSE, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>);
+
+		<span class="hljs-comment">/* Draw the circle */</span>
+		<span class="hljs-built_in">glDrawArrays</span>(GL_TRIANGLE_FAN, <span class="hljs-number">0</span>, <span class="hljs-number">180</span>);
+	}
+
+	<span class="hljs-comment">/* Bind the rectangle shader */</span>
+	<span class="hljs-built_in">glUseProgram</span>(ProgramId);
+	myMatrixLocation = <span class="hljs-built_in">glGetUniformLocation</span>(ProgramId, <span class="hljs-string">&quot;myMatrix&quot;</span>);
+	codColLocation = <span class="hljs-built_in">glGetUniformLocation</span>(ProgramId, <span class="hljs-string">&quot;codCol&quot;</span>);
+
+	<span class="hljs-comment">/* Update the scene */</span>
+	Ball::<span class="hljs-built_in">SceneUpdate</span>();
+
+	<span class="hljs-built_in">glutSwapBuffers</span>();
+	<span class="hljs-built_in">glFlush</span>();
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Cleanup</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+	<span class="hljs-built_in">DestroyShaders</span>();
+	<span class="hljs-built_in">DestroyVBO</span>();
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">TimerFunction</span><span class="hljs-params">(<span class="hljs-type">int</span> value)</span>
+</span>{
+	<span class="hljs-comment">/* 
+		Fix 60 fps since computation is done on every frame we want it to look 
+		similar on different speed machine and don&#x27;t consume excesive CPU time
+	*/</span>
+	<span class="hljs-built_in">glutPostRedisplay</span>();
+	<span class="hljs-built_in">glutTimerFunc</span>(<span class="hljs-number">1000</span> / <span class="hljs-number">120</span>, TimerFunction, <span class="hljs-number">0</span>);
+}
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span>
+</span>{
+	<span class="hljs-comment">/* Initialize random seed */</span>
+	<span class="hljs-built_in">srand</span>(<span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">unsigned</span>&gt;(<span class="hljs-built_in">time</span>(<span class="hljs-literal">nullptr</span>)));
+
+	<span class="hljs-built_in">glutInit</span>(&amp;argc, argv);
+	<span class="hljs-built_in">glutInitDisplayMode</span>(GLUT_DOUBLE | GLUT_RGB);
+	<span class="hljs-built_in">glutInitWindowSize</span>(<span class="hljs-number">600</span>, <span class="hljs-number">600</span>);
+	<span class="hljs-built_in">glutInitWindowPosition</span>(<span class="hljs-number">400</span>, <span class="hljs-number">100</span>);
+	<span class="hljs-built_in">glutCreateWindow</span>(<span class="hljs-string">&quot;Balls project&quot;</span>);
+
+	<span class="hljs-built_in">glewInit</span>();
+
+	<span class="hljs-comment">/* Register the timer function */</span>
+	<span class="hljs-built_in">glutTimerFunc</span>(<span class="hljs-number">0</span>, TimerFunction, <span class="hljs-number">0</span>);
+	<span class="hljs-built_in">Initialize</span>();						
+	<span class="hljs-built_in">glutDisplayFunc</span>(RenderFunction);
+	<span class="hljs-built_in">glutCloseFunc</span>(Cleanup);
+
+	<span class="hljs-built_in">glutMainLoop</span>();
+}
+</div></code></pre>
+<h3 dir="auto" id="anexa-2---rectanglevert">Anexa 2 - rectangle.vert</h3>
+<pre><code class="code-line language-cpp" dir="auto"><div><span class="hljs-meta">#version 330 core</span>
+
+<span class="hljs-comment">/* Coordinates */</span>
+<span class="hljs-built_in">layout</span> (location = <span class="hljs-number">0</span>) in vec4 in_Position; 
+<span class="hljs-comment">/* Colors */</span>    
+<span class="hljs-built_in">layout</span> (location = <span class="hljs-number">1</span>) in vec4 in_Color;
+<span class="hljs-comment">/* Texture coordinates */</span>
+<span class="hljs-built_in">layout</span> (location = <span class="hljs-number">2</span>) in vec2 texCoord;
+
+
+<span class="hljs-comment">/* Updated position */</span>
+out vec4 gl_Position;
+<span class="hljs-comment">/* Send to rectangle.frag */</span>
+out vec4 ex_Color;
+out vec2 tex_Coord;
+
+<span class="hljs-comment">/* Uniform variable */</span>
+uniform mat4 myMatrix;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+    gl_Position = myMatrix * in_Position;
+    ex_Color = in_Color;
+    tex_Coord = <span class="hljs-built_in">vec2</span>(texCoord.x, <span class="hljs-number">1</span>-texCoord.y);
+} 
+</div></code></pre>
+<h3 dir="auto" id="anexa-3---rectanglefrag">Anexa 3 - rectangle.frag</h3>
+<pre><code class="code-line language-cpp" dir="auto"><div><span class="hljs-meta">#version 330 core</span>
+
+in vec4 ex_Color;
+in vec2 tex_Coord;
+
+<span class="hljs-comment">/* Updated color */</span>
+out vec4 out_Color;
+
+<span class="hljs-comment">/* Uniform variables */</span>
+uniform vec4 circleColor;
+uniform sampler2D backgroundTexture;
+uniform <span class="hljs-type">int</span> codCol;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+    <span class="hljs-keyword">switch</span>(codCol)
+	{
+		<span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:
+			out_Color = ex_Color;
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:
+			out_Color = <span class="hljs-built_in">texture</span>(backgroundTexture, tex_Coord);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">default</span>:
+			<span class="hljs-keyword">break</span>;
+	}
+}
+</div></code></pre>
+<h3 dir="auto" id="anexa-4---circlesvert">Anexa 4 - circles.vert</h3>
+<pre><code class="code-line language-cpp" dir="auto"><div><span class="hljs-meta">#version 330 core</span>
+
+<span class="hljs-comment">/* Coordinates from button */</span>
+<span class="hljs-built_in">layout</span> (location = <span class="hljs-number">0</span>) in vec4 in_Position;
+
+<span class="hljs-comment">/* Updated position */</span>
+out vec4 gl_Position;
+
+<span class="hljs-comment">/* Uniform variable */</span>
+uniform mat4 myMatrix;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+    gl_Position = myMatrix * in_Position;
+} 
+</div></code></pre>
+<h3 dir="auto" id="anexa-5---circlesvert">Anexa 5 - circles.vert</h3>
+<pre><code class="code-line language-cpp" dir="auto"><div><span class="hljs-meta">#version 330 core</span>
+
+<span class="hljs-comment">/* Updated color */</span>
+out vec4 out_Color;
+
+<span class="hljs-comment">/* Uniform variable */</span>
+uniform vec4 circleColor;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>
+</span>{
+    out_Color = circleColor;
+}
+</div></code></pre>
+
+</body>
+</html>
